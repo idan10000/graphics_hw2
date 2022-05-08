@@ -7,6 +7,8 @@ import utils
 from intersections import findFirstIntersection
 from classes.Ray import Ray
 
+backgroundColor = None
+
 
 def initCameraVectors(camera, imageWidth, imageHeight):
     towards = (camera.look_at - camera.p)
@@ -34,10 +36,28 @@ def getPixelRay(i, j, p_0, vx, vy, cameraOrigin):
     return Ray(cameraOrigin, ray)
 
 
-def getColor(ray, t, entity):
+
+def getPixeldiffuse(point, light_intensity, material, normal, lights):
+    color = np.zeros(3)
+    for light in lights:
+        lightDirection = (point - light.point / np.linalg.norm(point - light.point))
+        color += getLightdiffuse(light_intensity, material, normal, lightDirection)
+    return color
+
+def getPixelSpecular(point, light_intensity, material, normal, lights):
+    color = np.zeros(3)
+    for light in lights:
+        lightDirection = (point - light.point / np.linalg.norm(point - light.point))
+        color += getLightdiffuse(light_intensity, material, normal, lightDirection)
+    return color
+
+
+def getColor(ray, t, entity, normal, lights):
+    p = ray.p + t * ray.v
     if t is not np.inf:
-        return np.array(entity.material.diffuse)
-    return np.array((255, 255, 255))
+        diffuse = getPixeldiffuse(p, calcLightIntensity(), entity.material, normal, lights)
+        specular = getp
+    return backgroundColor
 
 
 def rayTrace():
@@ -45,14 +65,16 @@ def rayTrace():
     width = int(width)
     height = int(height)
     parsedParams = Parser.parseScene(inputPath)
+    global backgroundColor
+    backgroundColor = parsedParams["settings"].background_color
     p_0, vx, vy = initCameraVectors(parsedParams["camera"], width, height)
 
     image = np.zeros((height, width, 3))
     for i in range(height):
         for j in range(width):
             ray = getPixelRay(i, j, p_0, vx, vy, parsedParams["camera"].p)
-            t, entity = findFirstIntersection(ray, parsedParams["entities"])
-            image[i][j] = getColor(ray, t, entity)
+            t, entity, normal = findFirstIntersection(ray, parsedParams["entities"])
+            image[i][j] = getColor(ray, t, entity, normal, parsedParams["lights"])
     return image
 
 

@@ -17,14 +17,15 @@ def intersectSphere(ray, sphere):
 
     t_hc = np.sqrt(sphere.radius ** 2 - d_squared)
     t = t_ca - t_hc
-
-    return t
+    p = ray.p + t * ray.v
+    N = (p - sphere.center) / np.linalg.norm(p - sphere.center)
+    return t, N
 
 
 def intersectPlane(ray, plane):
     # TODO: might need to add plane offset instead of subtract
     t = -1 * (ray.p @ plane.normal - plane.offset) / (ray.v @ plane.normal)
-    return t
+    return t, plane.normal
 
 
 def intersectCube(ray, cube):
@@ -43,10 +44,12 @@ def intersect(ray, entity):
 def findFirstIntersection(ray, scene):
     min_t = np.inf
     minEntity = None
+    minNormal = None
     for entity in scene:
-        t = intersect(ray, entity)
+        t, N = intersect(ray, entity)
         if type(t) is not np.complex128:
             if t < min_t:
                 minEntity = entity
                 min_t = t
-    return min_t, minEntity
+                minNormal = N
+    return min_t, minEntity, minNormal

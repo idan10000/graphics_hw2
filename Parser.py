@@ -17,7 +17,7 @@ def parseScene(dataPath):
             if values[0] == "cam":
                 output["camera"] = Camera(*[float(x) for x in values[1:]])
             elif values[0] == "set":
-                output["set"] = Settings(*[float(x) for x in values[1:]])
+                output["settings"] = Settings(*[float(x) for x in values[1:]])
             elif values[0] == "mtl":
                 output["materials"].append(Material(*[float(x) for x in values[1:]]))
             elif values[0] == "pln":
