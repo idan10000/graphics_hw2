@@ -36,6 +36,13 @@ def getPixelRay(i, j, p_0, vx, vy, cameraOrigin):
     return Ray(cameraOrigin, ray)
 
 
+def getLightdiffuse(light_intensity, mat, N, L):
+    return mat.diffuse * light_intensity * (N @ L)
+
+
+def getLightspec(light_intensity, mat, R, V):
+    return mat.spec * light_intensity * ((R @ V) ** mat.phong)
+
 
 def getPixeldiffuse(point, light_intensity, material, normal, lights):
     color = np.zeros(3)
