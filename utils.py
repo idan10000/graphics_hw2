@@ -9,9 +9,8 @@ Options = Any
 
 def normalize_image(image: NDArray):
     """Normalize image pixels to be between [0., 1.0]"""
-    min_img = image.min()
-    max_img = image.max()
-    normalized_image = (image - min_img) / (max_img - min_img)
+    normalized_image = np.clip(image, 0, 1)
+
     normalized_image *= 255.0
     return normalized_image
 
