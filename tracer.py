@@ -84,7 +84,7 @@ def getPixeldiffuse(point, entity, normal, lights, lightIntensities):
 # ---------------------------------- Specular ----------------------------------
 
 def getLightspec(light_intensity, mat, R, V):
-    mul = R @ V
+    mul = np.dot(R, V)
     if mul < 0:
         return np.zeros(3)
     return mat.spec * light_intensity * np.power(mul, mat.phong)
@@ -124,6 +124,16 @@ def getLightReflect(point, entities, entity, ray, shadow_rays, normal, lights, r
     #     print("test")
     return entity.material.reflect * getColor(reflection_ray, t, reflectedEntity, intersection_normal, lights,
                                                        entities, shadow_rays, reflection_depth, intersections[1:])
+
+
+# ---------------------------------- Reflection ----------------------------------
+
+def getBackground(entities, ray, shadow_rays, lights, reflection_depth, intersections):
+    if len(intersections) == 0:
+        return backgroundColor
+    t, entity, intersection_normal = intersections[0]
+    return getColor(ray, t, entity, intersection_normal, lights, entities,
+                    shadow_rays, reflection_depth, intersections[1:])
 
 
 def getColor(ray, t, entity, normal, lights, entities, shadow_rays, reflection_depth, intersections):
