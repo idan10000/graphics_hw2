@@ -30,6 +30,38 @@ def intersectPlane(ray, plane):
     return t, plane.normal / np.linalg.norm(plane.normal)
 
 
+def calcEdges(cube):
+    Edges = []
+
+    xRightSide = cube.center + np.array(((cube.length / 2), 0, 0))
+    xLeftSide = cube.center - np.array(((cube.length / 2), 0, 0))
+    xAlignedSides = np.array((xRightSide, xLeftSide))
+
+    for side in xAlignedSides:
+        first = side + np.array((0, cube.length / 2, cube.length / 2))
+        second = side + np.array((0, -(cube.length / 2), cube.length / 2))
+        third = side + np.array((0, -(cube.length / 2), -(cube.length / 2)))
+        fourth = side + np.array((0, cube.length / 2, -(cube.length / 2)))
+        Edges.append(np.array((first, second, third, fourth)))
+
+    xRightEdges = Edges[0]
+    xLeftEdges = Edges[1]
+
+    Edges.append(np.array((xRightEdges[0], xRightEdges[1], xLeftEdges[0], xLeftEdges[1])))  # frontSide
+    Edges.append(np.array((xRightEdges[2], xRightEdges[3], xLeftEdges[2], xLeftEdges[3])))  # backSide
+    Edges.append(np.array((xRightEdges[0], xRightEdges[3], xLeftEdges[0], xLeftEdges[3])))  # upSide
+    Edges.append(np.array((xRightEdges[1], xRightEdges[2], xLeftEdges[1], xLeftEdges[2])))  # downSide
+
+    return Edges
+
+
+def getNearestAndFurthestCorners(point, side):
+    distances = []
+    for corner in side:
+        distances.append(np.linalg.norm(point - corner))
+    return side[np.argmin(distances)], side[np.argmax(distances)]
+
+
 def intersectCube(ray, cube):
     t = np.inf
     N = None
