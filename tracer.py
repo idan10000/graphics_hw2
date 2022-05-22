@@ -1,5 +1,7 @@
+import argparse
 import random
 import sys
+import time
 
 import numpy as np
 
@@ -108,9 +110,6 @@ def getLightReflect(point, entities, entity, ray, shadow_rays, normal, lights, r
     R /= np.linalg.norm(R)
     reflection_ray = Ray(point, R)
 
-    if type(entity) == Plane:
-        print("s")
-
     intersections = findAllIntersections(reflection_ray, entities)
     if len(intersections) == 0:
         return backgroundColor * entity.material.reflect
@@ -169,10 +168,15 @@ def getColor(ray, t, entity, normal, lights, entities, shadow_rays, reflection_d
 
 
 def rayTrace():
-    inputPath, outputPath, width, height = sys.argv[1:]
-    width = int(width)
-    height = int(height)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("input_path", nargs='?', type=str, help="The path of the input scene")
+    parser.add_argument("output_path", nargs='?', type=str, help="The path to scenes the image")
+    parser.add_argument("width", nargs='?', type=int, help="The image width", default=500)
+    parser.add_argument("height", nargs='?', type=int, help="The image height", default=500)
+    args = parser.parse_args()
+    inputPath, outputPath, width, height = args.input_path, args.output_path, args.width, args.height
     parsedParams = Parser.parseScene(inputPath)
+
     settings = parsedParams["settings"]
     entities = parsedParams["entities"]
     camera = parsedParams["camera"]
@@ -193,11 +197,11 @@ def rayTrace():
                 t, entity, normal = intersections[0]
                 image[i][j] = getColor(ray, t, entity, normal, parsedParams["lights"], entities, int(settings.sh_rays),
                                        settings.rec_max, intersections[1:])
-    return image
+    image = np.rot90(image, 2)
+    image = np.fliplr(image)
+    utils.save_image(image, outputPath)
 
 
 if __name__ == '__main__':
-    image = rayTrace()
-    print(image)
-    image = np.rot90(image, 2)
-    utils.save_image(image, "output")
+    rayTrace()
+

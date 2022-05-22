@@ -5,6 +5,7 @@ from classes.Sphere import Sphere
 
 epsilon = 1e-9
 
+
 def intersectSphere(ray, sphere):
     L = sphere.center - ray.p
     t_ca = np.dot(L, ray.v)
@@ -30,7 +31,68 @@ def intersectPlane(ray, plane):
 
 
 def intersectCube(ray, cube):
-    pass
+    t = np.inf
+    N = None
+    side_dist = cube.length / 2
+
+    if not ray.v.all():
+        print("zero")
+
+    tmin = ((cube.center[0] - side_dist) - ray.p[0]) / ray.v[0]
+    tmax = ((cube.center[0] + side_dist) - ray.p[0]) / ray.v[0]
+
+    if (tmin > tmax):
+        tmin, tmax = tmax, tmin
+
+    tymin = ((cube.center[1] - side_dist) - ray.p[1]) / ray.v[1]
+    tymax = ((cube.center[1] + side_dist) - ray.p[1]) / ray.v[1]
+
+    if (tymin > tymax):
+        tymin, tymax = tymax, tymin
+
+    if ((tmin > tymax) or (tymin > tmax)):
+        return np.inf, None
+
+    if (tymin > tmin):
+        tmin = tymin
+
+    if (tymax < tmax):
+        tmax = tymax
+
+    tzmin = ((cube.center[2] - side_dist) - ray.p[2]) / ray.v[2]
+    tzmax = ((cube.center[2] + side_dist) - ray.p[2]) / ray.v[2]
+
+    if (tzmin > tzmax):
+        tzmin, tzmax = tzmax, tzmin
+
+    if ((tmin > tzmax) or (tzmin > tmax)):
+        return np.inf, None
+
+    if (tzmin > tmin):
+        tmin = tzmin
+
+    if (tzmax < tmax):
+        tmax = tzmax
+
+    if tmin >= 0:
+        t = tmin
+    elif tmax >= 0:
+        t = tmax
+    else:
+        return np.inf, None
+
+    hitPoint = ray.p + t * ray.v
+    if side_dist + epsilon >= abs(hitPoint[0] - cube.center[0]) >= side_dist - epsilon:
+        N = np.sign(hitPoint[0] - cube.center[0]) * np.array([1, 0, 0])
+    elif side_dist + epsilon >= abs(hitPoint[1] - cube.center[1]) >= side_dist - epsilon:
+        N = np.sign(hitPoint[1] - cube.center[1]) * np.array([0, 1, 0])
+    elif side_dist + epsilon >= abs(hitPoint[2] - cube.center[2]) >= side_dist - epsilon:
+        N = np.sign(hitPoint[2] - cube.center[2]) * np.array([0, 0, 1])
+    else:
+        print("error")
+        return np.inf, None
+
+    return t, N
 
 
 def intersect(ray, entity):

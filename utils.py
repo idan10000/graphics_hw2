@@ -27,4 +27,4 @@ def save_image(image, outdir: str):
         os.makedirs(outdir)
 
 
-    Image.fromarray(_prepare_to_save(image)).save(f'{outdir}/output_image.png')
+    Image.fromarray(_prepare_to_save(image)).save(f'{outdir}')
